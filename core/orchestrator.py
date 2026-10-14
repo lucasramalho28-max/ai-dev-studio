@@ -139,12 +139,17 @@ class Orchestrator:
                 done = False
                 progress_size = 0
                 try:
-                    emit('log', {'text':f'{a["name"]}: lendo arquivos e preparando o contexto do pedido.'})
+                    emit('log', {'task_id':tid,'agent':aid,'text':f'{a["name"]}: lendo arquivos e preparando o contexto do pedido.'})
                     available = input_budget(mode) - estimate_tokens(system) - estimate_tokens(prompt) - 160
                     ctx = context(self.store,self.files,project,prompt,staged,budget=max(0, available))
                     history = self.store.rows('SELECT role,content FROM messages WHERE project=? AND agent=? AND id<? ORDER BY id DESC LIMIT 6',(project,aid,message_id))[::-1]
                     messages = build_messages(system,prompt,ctx,history,previous,mode)
-                    emit('log', {'text':f'{a["name"]}: aguardando resposta do modelo {selected}.'})
+                    if i>0:
+                        emit('handoff', {'from_task':jid+'-'+str(i-1),'to_task':tid,
+                                         'from_agent':sequence[i-1],'to_agent':aid,
+                                         'files_available':list(staged),
+                                         'detail':'Etapa anterior concluída; contexto selecionado para a próxima etapa.'})
+                    emit('log', {'task_id':tid,'agent':aid,'text':f'{a["name"]}: aguardando resposta do modelo {selected}.'})
                     stream = (self.ollama.chat(selected,messages,cancel,mode='query') if mode == 'query'
                               else self.ollama.chat(selected,messages,cancel))
                     for chunk in stream:
@@ -152,7 +157,7 @@ class Orchestrator:
                         reply += token
                         if len(reply) - progress_size >= 2000:
                             progress_size = len(reply)
-                            emit('log', {'text':f'{aid}: resposta recebida ({progress_size} caracteres); aguardando validação.'})
+                            emit('log', {'task_id':tid,'agent':aid,'text':f'{aid}: resposta recebida ({progress_size} caracteres); aguardando validação.'})
                         done = chunk.get('done',False)
                         if done and chunk.get('done_reason') == 'length':
                             raise RuntimeError('Resposta atingiu o limite de geração. Divida o pedido; nenhuma proposta desta execução foi criada.')
@@ -162,7 +167,7 @@ class Orchestrator:
                         break
                     if not done:
                         raise RuntimeError('Resposta Ollama terminou sem confirmação de conclusão')
-                    emit('log', {'text':f'{a["name"]}: validando a resposta recebida.'})
+                    emit('log', {'task_id':tid,'agent':aid,'text':f'{a["name"]}: validando a resposta recebida.'})
                     if mode == 'query':
                         # Validate only references that survived message budgeting.
                         supplied_context = messages[-1]['content'].split('\nCONTEXTO:\n', 1)[-1]

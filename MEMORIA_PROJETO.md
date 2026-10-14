@@ -125,6 +125,15 @@ Na leitura do banco em 14/10/2026, existia **um projeto persistido**:
 - Estado recuperado ao recarregar tarefas ativas e ao reexecutar conversa interrompida. Conclusão, erro e cancelamento restauram Enviar.
 - **4 testes de navegador passaram**, cobrindo atividade, cancelamento real com modelo controlado, retorno ao envio, recuperação, autoaprovação, mobile e fluxo desktop. Evidências em `data/qa/send-interrupt-tests.txt`; captura móvel inspecionada em `data/qa/chat-live-activity.png`.
 
+### 14/10/2026 — organograma e passagens entre agentes
+
+- Adicionada aba **Organograma** na barra Código / Preview / Alterações do editor, com `static/organogram.js` e `static/organogram.css`. Exibe equipe, agente ativo, etapas da execução, detalhes clicáveis, modelo, logs e setas de encaminhamento. Botão permite retomar acompanhamento do agente ativo após selecionar outra etapa.
+- Dados compartilhados com `ExecutionActivity`; eventos de log agora incluem task_id/agent. Orquestrador emite `handoff` após preparar o contexto da próxima etapa, relacionando IDs das etapas e arquivos disponíveis. Setas distinguem próxima etapa, passagem confirmada e passagem ativa. Etapas repetidas continuam separadas.
+- Endpoint local `/api/projects/<pid>/flow` recupera dez execuções recentes do projeto, tarefas e até 300 eventos operacionais por execução. Não retorna tokens nem saída bruta do modelo. Organograma recupera também fluxos concluídos ao recarregar, com isolamento por projeto e suporte aos eventos antigos sem plano explícito.
+- Visão da equipe usa os agentes cadastrados, incluindo personalizados; geração determinística aparece como gerador local. Estados, erros e interrupções vêm dos dados reais, sem simular atividades nem pensamentos internos.
+- **68 testes passaram** na suíte completa. Testes verificam transição Coordenador → Logística, dados de passagem, detalhes da etapa, oito agentes/dez etapas, recuperação de fluxo concluído com nove passagens e isolamento por projeto. Inferência controlada por mock para testar transições; navegador, servidor e SSE reais.
+- Evidências: `data/qa/organogram-tests.txt`, `data/qa/organogram-full-suite.txt`, `data/qa/agent-organogram-desktop.png` e `data/qa/agent-organogram-mobile.png`. Capturas inspecionadas visualmente.
+
 ## Pendências confirmadas — ainda não corrigidas
 
 Detalhes completos e referências estão em `REVISAO_PROJETOS.md`.

@@ -203,6 +203,16 @@ class StudioTest(unittest.TestCase):
             tasks=self.s['store'].rows('SELECT * FROM tasks WHERE job=? ORDER BY position',(jid,))
             self.assertEqual([t['agent'] for t in tasks],['coordinator','logistics','database','backend','frontend','testing','browser','reviewer','logistics','coordinator'])
             self.assertTrue(all(t['status']=='completed' for t in tasks))
+            flow=self.call(f'/api/projects/{self.pid}/flow').json['executions']
+            self.assertEqual(len(flow),1)
+            self.assertEqual(len(flow[0]['tasks']),10)
+            handoffs=[e['data'] for e in flow[0]['events'] if e['type']=='handoff']
+            self.assertEqual(len(handoffs),9)
+            self.assertEqual(handoffs[0]['from_task'],tasks[0]['id'])
+            self.assertEqual(handoffs[0]['to_task'],tasks[1]['id'])
+            self.assertFalse(any(e['type'] in ('token','model_output') for e in flow[0]['events']))
+            other=self.call('/api/projects','POST',{'name':'Outro'}).json['id']
+            self.assertEqual(self.call(f'/api/projects/{other}/flow').json['executions'],[])
 
     def test_serial_gpu_queue(self):
         lock=threading.Lock();busy=0;max_busy=0

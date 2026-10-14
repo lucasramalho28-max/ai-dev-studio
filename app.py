@@ -272,6 +272,17 @@ def create_app(data=None, workspace=None, testing=False):
     def proposals(pid):
         return jsonify(store.rows("SELECT * FROM proposals WHERE project=? AND status='pending'",(project(pid),)))
 
+    @app.get('/api/projects/<pid>/flow')
+    def execution_flow(pid):
+        project(pid)
+        executions=store.rows("SELECT id,kind,project,status,created FROM jobs WHERE project=? AND kind IN ('chat','logistics_dashboard') ORDER BY created DESC LIMIT 10",(pid,))
+        for execution in executions:
+            execution['tasks']=store.rows('SELECT id,agent,position,status FROM tasks WHERE job=? ORDER BY position',(execution['id'],))
+            events=store.rows("SELECT type,data FROM events WHERE job=? AND type IN ('plan','status','agent','log','handoff','proposals','done','error') ORDER BY id DESC LIMIT 300",(execution['id'],))[::-1]
+            # Only operational metadata: model outputs and response tokens stay out of the graph.
+            execution['events']=[{'type':event['type'],'data':json.loads(event['data'])} for event in events if event['type']!='done']
+        return jsonify(executions=executions)
+
     @app.post('/api/proposals/<proposal_id>')
     def apply_proposal(proposal_id):
         b=body(); confirmed(b)

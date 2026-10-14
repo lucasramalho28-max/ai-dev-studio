@@ -13,30 +13,46 @@ class ExecutionActivity {
         anchor.before(this.root);
     }
     selectProject(project) { this.project = project; this.render(); }
-    track(id, kind, project) {
-        if (!this.jobs.has(id)) this.jobs.set(id, {id, kind, project, status:'queued', tasks:[], logs:[], detail:'Aguardando processamento.'});
+    track(id, kind, project, silent=false) {
+        if (!this.jobs.has(id)) this.jobs.set(id, {id, kind, project, status:'queued', tasks:[], logs:[], handoffs:[], detail:'Aguardando processamento.'});
+        if(!silent)this.render();
+    }
+    hydrate(executions) {
+        for(const snapshot of executions){
+            if(this.jobs.has(snapshot.id))continue;
+            this.track(snapshot.id,snapshot.kind,snapshot.project,true);
+            const job=this.jobs.get(snapshot.id);job.created=snapshot.created;
+            if(!snapshot.events.some(e=>e.type==='plan'))job.tasks=snapshot.tasks.map(t=>({...t,status:'queued'}));
+            for(const event of snapshot.events)this.update(snapshot.id,event.type,event.data,true);
+            job.status=snapshot.status;
+            for(const task of job.tasks){const saved=snapshot.tasks.find(t=>t.id===task.id);if(saved)task.status=saved.status; if(task.status==='queued'&&!['queued','running'].includes(job.status))task.status='skipped'}
+        }
         this.render();
     }
-    update(id, type, data) {
+    update(id, type, data, silent=false) {
         const job = this.jobs.get(id);
         if (!job) return;
         if (type === 'status') job.status = data.status;
         if (type === 'plan') job.tasks = data.tasks.map(task => ({...task, status:'queued'}));
         if (type === 'agent') {
             let task = job.tasks.find(task => task.id === data.task_id);
+            if(!data.task_id)task=job.tasks.find(task=>task.agent===data.agent&&task.status==='running')||job.tasks.find(task=>task.agent===data.agent&&task.status==='queued');
             if (!task) {
                 task = {id:data.task_id || data.agent, agent:data.agent};
                 job.tasks.push(task);
             }
             const status = data.status === 'CONCLUÍDO' ? 'completed' : data.status === 'ERRO' ? 'error' : data.status === 'INTERROMPIDO' ? 'cancelled' : 'running';
-            Object.assign(task, {status, label:data.status, model:data.model || task.model, detail:data.task || task.detail});
+            Object.assign(task, {status, label:data.status, model:data.model || task.model, detail:data.task || task.detail, files:data.files || task.files, error:data.error || task.error});
             if (status === 'running') job.detail = `${this.agentName(data.agent)}: ${data.status.toLowerCase()}`;
         }
         if (type === 'log') {
             job.logs.push(String(data.text));
             job.logs = job.logs.slice(-8);
             job.detail = String(data.text);
+            const task=job.tasks.find(t=>t.id===data.task_id);
+            if(task){task.activity=String(data.text);task.logs=[...(task.logs||[]),String(data.text)].slice(-6)}
         }
+        if(type==='handoff'&&!job.handoffs.some(h=>h.from_task===data.from_task&&h.to_task===data.to_task))job.handoffs.push(data);
         if (type === 'progress') job.detail = data.status || 'Processando…';
         if (type === 'proposals') job.detail = `${(data.files || []).length} arquivo(s) proposto(s), aguardando aprovação.`;
         if (type === 'test') job.detail = data.exit_code === 0 ? 'Testes concluídos com sucesso.' : 'Testes encerrados com falha.';
@@ -52,10 +68,11 @@ class ExecutionActivity {
         }
         if (type === 'connection') job.connection = data.text;
         if (type === 'status' || type === 'agent' || type === 'done') job.connection = '';
-        this.render();
+        if(!silent)this.render();
     }
     agentName(id) { return id === 'generator' ? 'Gerador local de dashboards' : this.agents().find(agent => agent.id === id)?.name || id; }
     render() {
+        this.onChange?.(this.project,[...this.jobs.values()]);
         const jobs = [...this.jobs.values()].filter(job => job.project === this.project);
         const visible = jobs.filter(job => ['queued','running'].includes(job.status)).concat(jobs.filter(job => !['queued','running'].includes(job.status)).slice(-2));
         this.root.replaceChildren();

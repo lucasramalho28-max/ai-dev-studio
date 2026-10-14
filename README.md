@@ -29,6 +29,12 @@ No assistente, marque **Autoaprovar arquivos dos novos pedidos** antes de enviar
 
 A opção aprova arquivos. Execução de código, testes, instalações e downloads continuam usando suas confirmações próprias.
 
+## Organograma dos agentes
+
+Na barra **Código · Preview · Alterações · Organograma**, abra **Organograma** para ver a estrutura da equipe e a sequência do trabalho. Clique em um agente ou etapa para consultar tarefa, modelo, atividade recente e origem do encaminhamento. **Acompanhar agente ativo** volta a seguir automaticamente a etapa em execução. As conexões indicam a próxima etapa ou uma passagem confirmada pelo servidor.
+
+O seletor permite consultar as dez execuções recentes do projeto, incluindo fluxos concluídos após recarregar a página. Etapas repetidas do Coordenador e da Logística aparecem separadamente. Consultas com um agente e geração local de dashboards exibem o fluxo correspondente.
+
 ## Implementado
 
 O assistente exibe **atividade em tempo real** dentro do chat: agente ativo, modelo, etapa atual, fila de etapas, conclusões e falhas. O painel usa eventos persistidos do servidor e recupera execuções ainda ativas ao recarregar. A equipe trabalha em sequência; consultas e bases prontas podem usar apenas um agente. A geração logística determinística aparece como gerador local, sem indicar inferência ou testes executados.
