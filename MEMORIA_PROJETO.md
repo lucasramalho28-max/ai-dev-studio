@@ -20,6 +20,7 @@ O usuário pediu revisão da coerência dos projetos feitos pela IA, código des
 - Modelo padrão configurado: `qwen2.5-coder:3b`; logística prefere `qwen3.5:4b` quando disponível. Disponibilidade atual não foi revalidada nesta auditoria.
 - Propostas usam aprovação manual ou a opção explícita de autoaprovação de novos pedidos no assistente (desativada por padrão). Validação estática e controle de hash não equivalem a execução nem garantem segurança. Aprovação é por arquivo, sem transação completa do conjunto.
 - `data/`, `workspace/`, `.venv/`, bancos e chaves estão ignorados pelo Git. Fazer backup do repositório sem essas pastas não preserva os projetos/dados locais.
+- GitHub atual: **repositório público** `https://github.com/lucasramalho28-max/ai-dev-studio`, remoto `origin`, branch `main`. Perfil publicado separadamente em `https://github.com/lucasramalho28-max/lucasramalho28-max`.
 
 ## Projeto gerado encontrado
 
@@ -133,6 +134,15 @@ Na leitura do banco em 14/10/2026, existia **um projeto persistido**:
 - Visão da equipe usa os agentes cadastrados, incluindo personalizados; geração determinística aparece como gerador local. Estados, erros e interrupções vêm dos dados reais, sem simular atividades nem pensamentos internos.
 - **68 testes passaram** na suíte completa. Testes verificam transição Coordenador → Logística, dados de passagem, detalhes da etapa, oito agentes/dez etapas, recuperação de fluxo concluído com nove passagens e isolamento por projeto. Inferência controlada por mock para testar transições; navegador, servidor e SSE reais.
 - Evidências: `data/qa/organogram-tests.txt`, `data/qa/organogram-full-suite.txt`, `data/qa/agent-organogram-desktop.png` e `data/qa/agent-organogram-mobile.png`. Capturas inspecionadas visualmente.
+
+### 14/10/2026 — perfil GitHub e projeto público
+
+- Usuário autorizou tornar `ai-dev-studio` público e melhorar o perfil da conta autenticada `lucasramalho28-max`. Visibilidade alterada e confirmada por API sem autenticação; adicionados tópicos Python, Flask, Ollama, agentes, JavaScript, dashboards e logística.
+- Revisados 103 blobs únicos do histórico por padrões de tokens/chaves; nenhuma correspondência de alta confiança. `.env.example`, único candidato de caminho sensível, contém apenas a porta pública também nas versões históricas. Essa varredura não equivale a auditoria completa. Runtime, bancos e projetos gerados continuam ignorados.
+- Criado repositório público de perfil `lucasramalho28-max/lucasramalho28-max`, com README em português, banner SVG próprio, projeto em destaque, tecnologias e contatos. Usuário confirmou expressamente o WhatsApp como contato público; Instagram, Facebook e WhatsApp aparecem no README e nos links sociais do perfil.
+- Usuário concluiu autorização adicional `user` do GitHub CLI. Nome atualizado para Lucas Ramalho, bio sobre IA local/automação/dados e website apontando para o Instagram. Nenhuma credencial foi registrada em arquivos versionados.
+- **Recuperação da conta não configurada.** GitHub não oferece cadastro de novo número extra de recuperação por SMS; o contato público não altera autenticação. Consultada a documentação oficial de recuperação/2FA. Não foram alteradas configurações de segurança nem gerados códigos de recuperação.
+- Perfil verificado sem login; banner carregado e capturas desktop/mobile inspecionadas, sem transbordamento horizontal a 390 px. Evidências locais em `data/qa/github-profile/`; checkout do perfil em `data/qa/github-profile/repository`, commit `6048e44`. A aplicação não mudou nesta etapa; a suíte de 68 testes permanece como evidência da entrega anterior.
 
 ## Pendências confirmadas — ainda não corrigidas
 
