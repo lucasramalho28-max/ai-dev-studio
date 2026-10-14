@@ -1,0 +1,77 @@
+"""Exercise live task transitions and replay using the real SSE endpoint."""
+import json
+import tempfile
+import threading
+import unittest
+from pathlib import Path
+from unittest.mock import patch
+
+from werkzeug.serving import make_server
+from app import create_app
+from tests.test_browser_real import sync_playwright
+
+
+@unittest.skipIf(sync_playwright is None, 'Playwright não instalado')
+class ActivityUITest(unittest.TestCase):
+    def test_agents_progress_reconnect_and_finish(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            app = create_app(Path(tmp)/'data', Path(tmp)/'workspace', testing=True)
+            studio = app.extensions['studio']
+            server = make_server('127.0.0.1',0,app,threaded=True)
+            thread = threading.Thread(target=server.serve_forever,daemon=True)
+            thread.start()
+            first, second = threading.Event(), threading.Event()
+            calls = []
+
+            def model(*args, **kwargs):
+                calls.append(1)
+                if len(calls) == 1:
+                    first.wait(timeout=20)
+                elif len(calls) == 2:
+                    second.wait(timeout=20)
+                yield {'message':{'content':json.dumps({'summary':'Análise da etapa.','files':[],'edits':[]})},'done':True}
+
+            try:
+                with patch.object(studio['ollama'],'tags',return_value=[]), patch.object(studio['ollama'],'chat',side_effect=model), sync_playwright() as pw:
+                    try: browser = pw.chromium.launch(headless=True)
+                    except Exception: browser = pw.chromium.launch(headless=True,channel='msedge')
+                    try:
+                        page = browser.new_page(viewport={'width':390,'height':844})
+                        page.route('https://**/*',lambda route:route.abort())
+                        page.goto(f'http://127.0.0.1:{server.server_port}',wait_until='domcontentloaded')
+                        page.locator('#new-project').click()
+                        page.locator('#studio-dialog-input').fill('QA atividade')
+                        page.locator('#studio-dialog button[type=submit]').click()
+                        page.wait_for_function("document.querySelector('#file-label').textContent==='app.py'")
+                        page.locator('.mobile-switch [data-mobile-pane=chat]').click()
+                        page.locator('#orchestrate').check()
+                        page.locator('#prompt').fill('Planeje uma melhoria no projeto')
+                        page.locator('#prompt').press('Enter')
+                        page.locator('.execution-tasks li[data-status=running]').filter(has_text='Coordenador').wait_for()
+                        self.assertEqual(page.locator('.execution-tasks li').count(),10)
+                        self.assertEqual(page.locator('.execution-tasks li[data-status=queued]').count(),9)
+                        self.assertIn('aguardando resposta',page.locator('.execution-current').inner_text())
+                        first.set()
+                        page.locator('.execution-tasks li[data-status=running]').filter(has_text='Logística').wait_for()
+                        self.assertEqual(page.locator('.execution-tasks li[data-status=completed]').count(),1)
+                        page.reload(wait_until='domcontentloaded')
+                        page.wait_for_function("document.querySelector('#file-label').textContent==='app.py'")
+                        page.locator('.mobile-switch [data-mobile-pane=chat]').click()
+                        page.locator('.execution-tasks li[data-status=running]').filter(has_text='Logística').wait_for()
+                        self.assertEqual(page.locator('.execution-tasks li').count(),10)
+                        artifacts = Path(__file__).resolve().parents[1]/'data'/'qa'
+                        artifacts.mkdir(parents=True,exist_ok=True)
+                        page.screenshot(path=str(artifacts/'chat-live-activity.png'))
+                        self.assertLessEqual(page.evaluate('document.documentElement.scrollWidth'),390)
+                        send = page.locator('#send').bounding_box()
+                        self.assertLessEqual(send['y'] + send['height'], 844 - 65)
+                        second.set()
+                        page.locator('.execution-card[data-status=completed]').wait_for()
+                        self.assertEqual(page.locator('.execution-tasks li[data-status=running]').count(),0)
+                        self.assertEqual(page.locator('.execution-tasks li[data-status=completed]').count(),10)
+                        self.assertEqual(len(calls),10)
+                    finally: browser.close()
+            finally:
+                first.set(); second.set()
+                for worker in list(studio['jobs'].threads.values()): worker.join(timeout=10)
+                server.shutdown();server.server_close();thread.join(timeout=5)

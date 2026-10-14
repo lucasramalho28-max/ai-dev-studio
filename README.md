@@ -23,6 +23,8 @@ Em telas de até 850 px, o Studio apresenta os painéis **Arquivos**, **Área de
 
 ## Implementado
 
+O assistente exibe **atividade em tempo real** dentro do chat: agente ativo, modelo, etapa atual, fila de etapas, conclusões e falhas. O painel usa eventos persistidos do servidor e recupera execuções ainda ativas ao recarregar. A equipe trabalha em sequência; consultas e bases prontas podem usar apenas um agente. A geração logística determinística aparece como gerador local, sem indicar inferência ou testes executados.
+
 - Flask modular; SQLite com projetos, conversas, tarefas, eventos, configurações, propostas e resumo de contexto.
 - Detecção independente do executável e do serviço Ollama; instalação winget do pacote `Ollama.Ollama`, log real, verificação posterior e fallback para o site oficial.
 - APIs Ollama `/api/tags`, `/api/pull`, `/api/chat`, `/api/delete` e `/api/version`. Download e chat com streaming NDJSON retransmitido por SSE. Progresso por camada, bytes e velocidade observada quando disponíveis; exclusão verificada; teste do modelo.

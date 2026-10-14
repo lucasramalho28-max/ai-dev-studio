@@ -26,6 +26,8 @@ Escopo: Studio, serviços de geração, base `starters/stock_portal` e único pr
 
 ### 6. Média — etapas de agentes indicam trabalho que não ocorreu
 
+**Atualização de 14/10/2026: corrigido no código.** O gerador agora apresenta uma única tarefa de geração local, informa validação da base e preparação de propostas e não identifica especialistas como executados. Testes propostos continuam distintos de testes executados. O texto abaixo preserva o achado original.
+
 `services/dashboard_service.py:274–295` cria seis tarefas e marca todas como concluídas. Somente a primeira executa `_prepare`; as demais não chamam agentes, revisores ou testes. A geração usa constantes locais, o que é válido, mas o progresso sugere análises especializadas realizadas. Correção indicada: apresentar etapas reais da geração determinística e reservar status de testes/revisão para ferramentas efetivamente executadas.
 
 ### 7. Média — exportação CSV logística sem neutralização de fórmulas

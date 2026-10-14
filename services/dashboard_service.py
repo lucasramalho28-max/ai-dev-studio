@@ -274,25 +274,16 @@ class DashboardService:
     def generate(self, project, payload, job, emit, cancel):
         if payload.get('rules_confirmed') is not True or payload.get('confirm') is not True:
             raise PermissionError('Confirme a regra de SLA e a geração das propostas')
-        stages = [
-            ('logistics', 'Validar base, mapeamento e fórmula'),
-            ('coordinator', 'Definir escopo do dashboard'),
-            ('backend', 'Preparar API e dados agregáveis'),
-            ('frontend', 'Construir filtros, KPIs e visualizações'),
-            ('testing', 'Criar validações de integridade'),
-            ('reviewer', 'Revisar rastreabilidade e segurança'),
-        ]
-        for position, (agent, detail) in enumerate(stages):
-            task_id = uuid.uuid4().hex
-            self.store.execute('INSERT INTO tasks VALUES (?,?,?,?,?,?)',
-                               (task_id, job, agent, position, 'running', ''))
-            emit('agent', {'agent': agent, 'status': 'ANALISANDO' if agent == 'logistics' else 'TRABALHANDO', 'task': detail})
-            if cancel.is_set():
-                raise InterruptedError('Geração interrompida')
-            if position == 0:
-                data, meta = self._prepare(project, payload)
-            self.store.execute("UPDATE tasks SET status='completed',result=? WHERE id=?",
-                               (detail + ' concluído', task_id))
+        task_id = job + '-0'
+        emit('plan', {'tasks':[{'id':task_id,'agent':'generator','position':0}]})
+        self.store.execute('INSERT INTO tasks VALUES (?,?,?,?,?,?)',
+                           (task_id, job, 'generator', 0, 'running', ''))
+        emit('agent', {'task_id':task_id,'agent':'generator','status':'GERANDO',
+                       'task':'Validar base, mapeamento e fórmula', 'model':'Geração local, sem inferência'})
+        if cancel.is_set():
+            raise InterruptedError('Geração interrompida')
+        data, meta = self._prepare(project, payload)
+        emit('log', {'text':'Base validada. Preparando os arquivos do dashboard e os testes propostos (sem executá-los).'})
         data_text = json.dumps(data, ensure_ascii=False, indent=2)
         files = {
             'app.py': APP_PY,
@@ -320,5 +311,8 @@ class DashboardService:
                                       result_json=json.dumps(result, ensure_ascii=False)))
             db.commit()
         self.logistics._activity(project, 'dashboard', f'Dashboard de SLA proposto com {len(proposals)} arquivos; fonte {meta["name"]}')
+        self.store.execute("UPDATE tasks SET status='completed',result=? WHERE id=?",
+                           ('Arquivos propostos; execução e testes aguardam aprovação.',task_id))
+        emit('agent', {'task_id':task_id,'agent':'generator','status':'CONCLUÍDO','files':list(files)})
         emit('dashboard', result)
         return result

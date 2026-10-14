@@ -41,10 +41,12 @@ class Orchestrator:
                 if starter:
                     starter_bases = {name:self.files.read(project,name)['hash']
                                      if self.files.path(project,name).exists() else None for name in starter}
+            planned = [agent_id] if starter or credentials else sequence
+            emit('plan', {'tasks':[{'id':jid+'-'+str(i),'agent':aid,'position':i} for i,aid in enumerate(planned)]})
             if starter:
                 tid = jid+'-0'
                 self.store.execute('INSERT INTO tasks VALUES (?,?,?,?,?,?)',(tid,jid,agent_id,0,'running',''))
-                emit('agent', {'agent':agent_id,'status':'PROGRAMANDO','task':prompt[:160],
+                emit('agent', {'task_id':tid,'agent':agent_id,'status':'PROGRAMANDO','task':prompt[:160],
                                'model':'Base local de cadastro e estoque (sem inferência)'})
                 try:
                     validate_proposals(starter,self.files,project)
@@ -68,38 +70,38 @@ class Orchestrator:
                     self.store.set('memory_v2:'+project,[{'request':prompt[:600],'proposed_files':list(starter)}])
                     self.store.execute("UPDATE tasks SET status='completed',result=? WHERE id=?",(answer,tid))
                     emit('token',{'agent':agent_id,'text':answer})
-                    emit('agent',{'agent':agent_id,'status':'CONCLUÍDO','files':list(starter)})
+                    emit('agent',{'task_id':tid,'agent':agent_id,'status':'CONCLUÍDO','files':list(starter)})
                     emit('proposals',{'ids':ids,'files':list(starter)})
                     return {'proposals':ids,'message':answer,'mode':mode,'source':'local_starter'}
                 except Exception as exc:
                     if reply:
                         self.store.event(jid,'model_output',{'agent':aid,'text':reply,'error':str(exc)})
                     self.store.execute("UPDATE tasks SET status='error',result=? WHERE id=?",(str(exc),tid))
-                    emit('agent',{'agent':agent_id,'status':'ERRO','error':str(exc)})
+                    emit('agent',{'task_id':tid,'agent':agent_id,'status':'ERRO','error':str(exc)})
                     raise
             if credentials:
                 # No model, memory, test fixtures or unapproved proposals can supply a password.
                 tid = jid + '-0'
                 self.store.execute('INSERT INTO tasks VALUES (?,?,?,?,?,?)',
                                    (tid,jid,agent_id,0,'running',''))
-                emit('agent', {'agent':agent_id,'status':'ANALISANDO','task':prompt[:160],
+                emit('agent', {'task_id':tid,'agent':agent_id,'status':'ANALISANDO','task':prompt[:160],
                                'model':'Análise local de evidências'})
                 try:
                     sources, _, _ = project_sources(self.files, project, prompt)
                     if cancel.is_set():
                         self.store.execute("UPDATE tasks SET status='cancelled' WHERE id=?", (tid,))
-                        emit('agent', {'agent':agent_id,'status':'INTERROMPIDO'})
+                        emit('agent', {'task_id':tid,'agent':agent_id,'status':'INTERROMPIDO'})
                         return {'proposals':[], 'message':'', 'mode':mode}
                     answer = credential_answer(sources)
                     self.store.message(project,agent_id,'assistant',answer)
                     self.store.execute("UPDATE tasks SET status='completed',result=? WHERE id=?", (answer,tid))
                     emit('token', {'agent':agent_id,'text':answer})
-                    emit('agent', {'agent':agent_id,'status':'CONCLUÍDO','files':[]})
+                    emit('agent', {'task_id':tid,'agent':agent_id,'status':'CONCLUÍDO','files':[]})
                     emit('proposals', {'ids':[], 'files':[]})
                     return {'proposals':[], 'message':answer, 'mode':mode}
                 except Exception as exc:
                     self.store.execute("UPDATE tasks SET status='error',result=? WHERE id=?", (str(exc),tid))
-                    emit('agent', {'agent':agent_id,'status':'ERRO','error':str(exc)})
+                    emit('agent', {'task_id':tid,'agent':agent_id,'status':'ERRO','error':str(exc)})
                     raise
             try:
                 installed_models = {item.get('name') for item in self.ollama.tags()}
@@ -127,7 +129,7 @@ class Orchestrator:
                 preferred = a.get('preferred_model')
                 coding = a.get('coding_model')
                 selected = configured or (preferred if preferred in installed_models else None) or (coding if coding in installed_models else None) or default_model
-                emit('agent',{'agent':aid,'status':a.get('status','PROGRAMANDO'),'task':prompt[:160],'model':selected})
+                emit('agent',{'task_id':tid,'agent':aid,'status':a.get('status','PROGRAMANDO'),'task':prompt[:160],'model':selected})
                 system = (a.get('prompt') or BASE_PROMPT.format(**a)) + '\n' + FACTUAL_RULES
                 if mode == 'query':
                     system += '\n' + QUERY_RULES
@@ -137,10 +139,12 @@ class Orchestrator:
                 done = False
                 progress_size = 0
                 try:
+                    emit('log', {'text':f'{a["name"]}: lendo arquivos e preparando o contexto do pedido.'})
                     available = input_budget(mode) - estimate_tokens(system) - estimate_tokens(prompt) - 160
                     ctx = context(self.store,self.files,project,prompt,staged,budget=max(0, available))
                     history = self.store.rows('SELECT role,content FROM messages WHERE project=? AND agent=? AND id<? ORDER BY id DESC LIMIT 6',(project,aid,message_id))[::-1]
                     messages = build_messages(system,prompt,ctx,history,previous,mode)
+                    emit('log', {'text':f'{a["name"]}: aguardando resposta do modelo {selected}.'})
                     stream = (self.ollama.chat(selected,messages,cancel,mode='query') if mode == 'query'
                               else self.ollama.chat(selected,messages,cancel))
                     for chunk in stream:
@@ -154,10 +158,11 @@ class Orchestrator:
                             raise RuntimeError('Resposta atingiu o limite de geração. Divida o pedido; nenhuma proposta desta execução foi criada.')
                     if cancel.is_set():
                         self.store.execute("UPDATE tasks SET status='cancelled',result=? WHERE id=?",(reply,tid))
-                        emit('agent',{'agent':aid,'status':'INTERROMPIDO'})
+                        emit('agent',{'task_id':tid,'agent':aid,'status':'INTERROMPIDO'})
                         break
                     if not done:
                         raise RuntimeError('Resposta Ollama terminou sem confirmação de conclusão')
+                    emit('log', {'text':f'{a["name"]}: validando a resposta recebida.'})
                     if mode == 'query':
                         # Validate only references that survived message budgeting.
                         supplied_context = messages[-1]['content'].split('\nCONTEXTO:\n', 1)[-1]
@@ -190,11 +195,11 @@ class Orchestrator:
                         staged[name] = content
                     previous = reply
                     self.store.execute("UPDATE tasks SET status='completed',result=? WHERE id=?",(reply,tid))
-                    emit('agent',{'agent':aid,'status':'CONCLUÍDO','files':list(staged)})
+                    emit('agent',{'task_id':tid,'agent':aid,'status':'CONCLUÍDO','files':list(staged)})
                 except Exception as exc:
                     self.store.execute("UPDATE tasks SET status='error',result=? WHERE id=?",(str(exc),tid))
                     self.store.message(project,aid,'assistant','Falha no pedido: '+str(exc))
-                    emit('agent',{'agent':aid,'status':'ERRO','error':str(exc)})
+                    emit('agent',{'task_id':tid,'agent':aid,'status':'ERRO','error':str(exc)})
                     raise
             proposals = []
             if not cancel.is_set():
@@ -202,7 +207,7 @@ class Orchestrator:
                     validate_proposals(staged,self.files,project)
                 except ValueError as exc:
                     self.store.execute("UPDATE tasks SET status='error',result=? WHERE id=?", (str(exc),tid))
-                    emit('agent', {'agent':aid,'status':'ERRO','error':str(exc)})
+                    emit('agent', {'task_id':tid,'agent':aid,'status':'ERRO','error':str(exc)})
                     raise
                 for name, content in staged.items():
                     pid = uuid.uuid4().hex

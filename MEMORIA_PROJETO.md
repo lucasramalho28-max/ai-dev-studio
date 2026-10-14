@@ -93,6 +93,21 @@ Na leitura do banco em 14/10/2026, existia **um projeto persistido**:
 - `data/`, `workspace/`, `.venv/`, bancos e chaves permanecem excluídos. O Atlas aplicado localmente não será enviado como banco/projeto completo; a base reutilizável e suas correções estão versionadas.
 - A criação/publicação remota ainda depende da autenticação do GitHub CLI: o conector disponível identifica a conta, mas não oferece criação de repositório; não foi encontrada credencial Git em cache. Atualizar esta entrada quando o envio for confirmado.
 
+### 14/10/2026 — atividade dos agentes no chat
+
+- Adicionados `static/activity.js` e `static/activity.css`: painel no assistente com etapa atual, agente/modelo, fila, tarefas concluídas, logs recentes, falhas e reconexão. Atualização via SSE real; respostas brutas do modelo não são expostas como progresso.
+- Orquestrador emite plano de execução e IDs das tarefas, distinguindo etapas repetidas do mesmo agente; informa preparação do contexto, espera pelo modelo e validação. Eventos de projetos diferentes não entram no painel/chat selecionado.
+- Recuperação das execuções ativas ao recarregar usando replay dos eventos. Painel com limite de altura e rolagem própria; botão de envio permanece visível no celular em retrato.
+- Geração logística passou a apresentar um gerador local de dashboards, sem as seis atividades fictícias de especialistas. O código apenas propõe arquivos e testes; execução depende das ações já existentes. Isso corrige o achado 6 da auditoria quanto aos status desse fluxo.
+- Teste `tests/test_activity_ui.py` verifica transição entre agentes, dez etapas sequenciais, replay após recarregar, fim sem agentes presos como ativos, largura móvel e botão Enviar visível. Inferência simulada nesse teste para controlar precisamente as transições; servidor, navegador e SSE são reais. Captura em `data/qa/chat-live-activity.png`.
+- Validação final: **67 testes passaram**, incluindo a nova cobertura de atividade e a suíte completa; resultado em `data/qa/activity-full-suite.txt`. Captura móvel inspecionada visualmente.
+
+### 14/10/2026 — criação do repositório remoto
+
+- Login concluído pelo usuário no GitHub CLI em **lucasramalho28-max**, conta diferente da conexão anterior Lucask22000. Usada a conta efetivamente autenticada para a criação autorizada.
+- Criado repositório privado `https://github.com/lucasramalho28-max/ai-dev-studio`; configurado `origin` para esse destino. Commit anterior da sessão: `69286e9`.
+- Envio das alterações atuais em preparação; atualizar quando `git push` e comparação do commit remoto confirmarem a publicação. Não guardar códigos de login nem tokens na memória.
+
 ## Pendências confirmadas — ainda não corrigidas
 
 Detalhes completos e referências estão em `REVISAO_PROJETOS.md`.
@@ -104,7 +119,6 @@ Detalhes completos e referências estão em `REVISAO_PROJETOS.md`.
 | Média | Normalização de cabeçalhos CSV/JSON e truncamento de nomes não preservam associação com valores | `services/logistics_service.py` |
 | Média | Tratamento de falhas da base pronta usa `reply` e `aid` antes de definição | `core/orchestrator.py` |
 | Média | Senha personalizada reconhecida no pedido pode ser publicada como credencial demo no código, README e login | `services/starter_service.py`, base de estoque |
-| Média | Gerador determinístico marca etapas especializadas como concluídas sem executar essas análises/testes | `services/dashboard_service.py` |
 | Média | Exportação logística não neutraliza fórmulas de planilha em textos importados | `DASHBOARD_JS` no gerador |
 | Baixa | Template inicial sem uso no Atlas; duplicação `SAMPLE`/`EMPTY_APP`; carregamento desnecessário de movimentos; título de dashboard ignorado na tela; import de testes pode inicializar runtime real | Ver relatório |
 

@@ -1,0 +1,13 @@
+.execution-feed{flex-shrink:0;max-height:32%;min-height:0;overflow:auto;margin:8px 0;border-radius:8px;overscroll-behavior:contain}
+.execution-card{background:#14221c;border:1px solid #345344;border-radius:8px;margin:6px 0;font-size:11px;overflow-wrap:anywhere}
+.execution-card summary{cursor:pointer;padding:10px;font-weight:600;color:var(--accent);line-height:1.5}
+.execution-card[data-status=running] summary::after{content:' ●';animation:activity-pulse 1.4s ease-in-out infinite}
+.execution-card[data-status=error]{border-color:#a86262;background:#2b1d20}.execution-card[data-status=error] summary{color:#ffb4b4}
+.execution-current{margin:0;padding:0 10px 9px;line-height:1.5;color:#d2ddda}
+.execution-tasks{margin:0 10px 8px;padding-left:20px}.execution-tasks li{padding:5px 0;color:#a0b1a8;line-height:1.5}
+.execution-tasks li[data-status=running]{color:var(--accent)}.execution-tasks li[data-status=completed]{color:#cad9d0}.execution-tasks li[data-status=error]{color:#ffb4b4}
+.execution-tasks strong{font-weight:500}.execution-tasks small{display:block;font-size:10px;color:#9aa9a0}
+.execution-logs{border-top:1px solid #345344;padding:6px 10px}.execution-logs p{font-size:10px;line-height:1.5;margin:3px 0;color:#9eafa5}
+@keyframes activity-pulse{50%{opacity:.35}}
+@media(prefers-reduced-motion:reduce){.execution-card[data-status=running] summary::after{animation:none}}
+@media(max-width:850px){.shell>.chat-panel{height:auto;min-height:0}.chat-panel #chat{min-height:40px}.execution-card{font-size:12px}.execution-card summary{min-height:44px;padding:12px}.execution-feed{max-height:28%;flex-shrink:1}}
