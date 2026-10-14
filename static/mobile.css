@@ -40,15 +40,12 @@
   .welcome{min-height:280px;padding:18px}.welcome h1{font-size:26px}.welcome-note{display:none}
   .chat-panel .section-title{margin-bottom:10px}.chat-agent select{font-size:16px;max-width:65%}.chat-agent small{overflow-wrap:anywhere}
   #chat{min-height:80px}#prompt{height:88px;min-height:60px;max-height:25dvh;font-size:16px;resize:vertical}#chat-form{flex-shrink:0}.chat-mode-field{flex-wrap:wrap}.chat-mode-field select{font-size:16px}.check{font-size:12px;line-height:1.5}.chat-send button{font-size:13px}.message{font-size:14px}
-  .recommendations,.agent-grid,.logistics-layout,.mapping-editor{grid-template-columns:minmax(0,1fr)}
+  .recommendations,.agent-grid{grid-template-columns:minmax(0,1fr)}
   .button-row input{min-width:0;flex-basis:100%}.button-row button,.button-row a{font-size:12px}.button-row a{padding:10px 0}
   .model-row strong{flex-basis:100%;overflow-wrap:anywhere}.model-row button{font-size:12px}
   #agent-settings>label{align-items:stretch;flex-direction:column}#agent-settings select{max-width:100%;width:100%;font-size:16px}
   .preview-tools span{width:100%;overflow-wrap:anywhere}.preview-tools button{font-size:12px}.preview-tools a{padding:10px 0}#preview{min-height:240px}
   .proposal{padding:10px;min-width:0}.proposal strong{overflow-wrap:anywhere}.proposal button{font-size:12px}
-  .base-row,.dashboard-row,.memory-row{flex-wrap:wrap;overflow-wrap:anywhere}.base-row>div,.dashboard-row strong,.memory-row b{min-width:0;flex-basis:100%}
-  .logistics-card input,.logistics-card select,.logistics-card textarea{width:100%}.logistics-card input[type=checkbox]{width:20px}
-  .table-scroll{max-width:100%}.quality-summary{grid-template-columns:minmax(0,1fr)}
   #toast{bottom:calc(80px + env(safe-area-inset-bottom));width:calc(100% - 24px);max-width:520px;padding:12px;font-size:13px}
 }
 @media(max-width:360px){.brand strong{font-size:10px}.brandmark{font-size:21px}.top-actions button{font-size:10px}.mobile-switch button{font-size:10px}.work-toolbar>div{flex-wrap:wrap}}

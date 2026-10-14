@@ -34,7 +34,9 @@ class BrowserRealTest(unittest.TestCase):
                     try:
                         page=browser.new_page(viewport={'width':1600,'height':1000})
                         errors=[]
+                        logistics_requests=[]
                         page.on('pageerror',lambda e:errors.append(str(e)))
+                        page.on('request',lambda request:logistics_requests.append(request.url) if '/logistics' in request.url else None)
                         page.on('dialog',lambda d:d.accept('QA Flask' if d.type=='prompt' else None))
                         page.goto(f'http://127.0.0.1:{server.server_port}',wait_until='networkidle')
                         page.locator('#new-project').click()
@@ -86,19 +88,16 @@ class BrowserRealTest(unittest.TestCase):
                         page.locator('[data-view="agents"]').click()
                         self.assertEqual(page.locator('.agent-card').count(),8)
                         page.screenshot(path=str(artifacts/'agents.png'),full_page=True)
-                        page.locator('[data-view="logistics"]').click()
-                        page.locator('#view-logistics.active').wait_for()
-                        self.assertIn('Bases, indicadores',page.locator('#view-logistics').inner_text())
-                        page.locator('#logistics-synthetic').click()
-                        page.locator('.mapping-select[data-role="order_id"]').wait_for(timeout=15000)
-                        self.assertEqual(page.locator('.base-row').count(),1)
-                        page.locator('#logistics-rules').check()
-                        page.locator('#logistics-create').click()
-                        page.wait_for_function("document.querySelector('#proposal-count').textContent==='7'",timeout=20000)
-                        self.assertIn('Dashboard proposto',page.locator('#logistics-progress').inner_text())
-                        page.screenshot(path=str(artifacts/'logistics.png'),full_page=True)
+                        self.assertEqual(page.locator('nav .nav').count(),4)
+                        self.assertEqual(page.locator('[data-view="logistics"], #view-logistics').count(),0)
+                        page.locator('.agent-card').filter(has_text='Analista de Inteligência Logística').click()
+                        page.locator('#view-editor.active').wait_for()
+                        self.assertEqual(page.locator('#agent').input_value(),'logistics')
+                        page.locator('[data-view="settings"]').click()
+                        page.locator('#view-settings.active').wait_for()
+                        self.assertEqual(logistics_requests,[])
                         self.assertEqual(errors,[],errors)
-                        (artifacts/'browser-report.txt').write_text('PASS: criação, consulta de credenciais sem propostas/equipe, Monaco/fallback, salvar, executar Flask, preview, Playwright real, modelos, oito agentes e módulo logístico.\nErros JavaScript: 0\n',encoding='utf-8')
+                        (artifacts/'browser-report.txt').write_text('PASS: criação, consulta de credenciais sem propostas/equipe, Monaco/fallback, salvar, executar Flask, preview, Playwright real, modelos, oito agentes, ajustes e navegação sem aba/carregamento logístico.\nErros JavaScript: 0\n',encoding='utf-8')
                     finally:
                         browser.close()
             finally:

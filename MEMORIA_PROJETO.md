@@ -16,6 +16,7 @@ O usuário pediu revisão da coerência dos projetos feitos pela IA, código des
 - Entrada: `app.py`; configuração: `config.py`; instalação/início: `instalar.bat` e `iniciar.bat`. Porta padrão 5050.
 - Componentes: `agents/registry.py` (prompts), `core/orchestrator.py` (fluxos), `core/jobs.py` (fila), `core/context_manager.py` (evidências/contexto), `core/response_policy.py` (consultas/credenciais), `core/proposal_validation.py` (validação estática).
 - Serviços: arquivos, Ollama/instalador, execução Python, Playwright, logística e geração determinística de dashboards. Interface em `templates/` e `static/`.
+- Navegação atual: **Editor, Agentes, IA e Ajustes** no desktop e no celular. Aba dedicada de Logística removida por decisão do usuário; agente especialista e APIs existentes continuam disponíveis. Selecionar projeto não carrega dados logísticos automaticamente.
 - Dependências declaradas: Flask, Playwright, openpyxl e SQLAlchemy. Inferência atual usa Ollama; não há integração implementada com APIs externas que exija chave.
 - Modelo padrão configurado: `qwen2.5-coder:3b`; logística prefere `qwen3.5:4b` quando disponível. Disponibilidade atual não foi revalidada nesta auditoria.
 - Propostas usam aprovação manual ou a opção explícita de autoaprovação de novos pedidos no assistente (desativada por padrão). Validação estática e controle de hash não equivalem a execução nem garantem segurança. Aprovação é por arquivo, sem transação completa do conjunto.
@@ -143,6 +144,14 @@ Na leitura do banco em 14/10/2026, existia **um projeto persistido**:
 - Usuário concluiu autorização adicional `user` do GitHub CLI. Nome atualizado para Lucas Ramalho, bio sobre IA local/automação/dados e website apontando para o Instagram. Nenhuma credencial foi registrada em arquivos versionados.
 - **Recuperação da conta não configurada.** GitHub não oferece cadastro de novo número extra de recuperação por SMS; o contato público não altera autenticação. Consultada a documentação oficial de recuperação/2FA. Não foram alteradas configurações de segurança nem gerados códigos de recuperação.
 - Perfil verificado sem login; banner carregado e capturas desktop/mobile inspecionadas, sem transbordamento horizontal a 390 px. Evidências locais em `data/qa/github-profile/`; checkout do perfil em `data/qa/github-profile/repository`, commit `6048e44`. A aplicação não mudou nesta etapa; a suíte de 68 testes permanece como evidência da entrega anterior.
+
+### 14/10/2026 — remoção da aba Logística
+
+- Usuário pediu retirar a aba porque o Studio será usado para criar sistemas de diferentes áreas. Removidos botão de navegação, painel, controles, estado/funções JavaScript específicos e os dois arquivos CSS exclusivos da aba. Limpos também os estilos móveis sem uso.
+- Removido carregamento automático de `/logistics` na seleção de projetos. Todos os cartões de agentes abrem o editor e atualizam o seletor/modelo do assistente. Recomendação de Qwen3.5 4B na tela IA passa a usar rótulo geral de análise.
+- Eventos de dashboards antigos continuam registrando conclusão nos logs e atualizando propostas, sem acessar o painel removido. Serviços, APIs, bancos, arquivos dos projetos e agente especializado foram preservados; a sequência da equipe não foi alterada nesta entrega.
+- README atualizado para quatro módulos e serviços logísticos acessíveis por API. **4 testes existentes de navegador passaram**, cobrindo desktop, três dimensões móveis, edição, execução, preview, chat, organograma, interrupção e autoaprovação. Verificado que navegação/criação não faz requisições logísticas e que o especialista abre corretamente o editor, sem erros JavaScript.
+- Evidências: `data/qa/remove-logistics-tests.txt`, `data/qa/editor.png` e `data/qa/studio-mobile-editor.png`. Capturas inspecionadas. Instância isolada de QA do VS Code reiniciada após verificar identidade e ausência de jobs ativos; conteúdo atualizado confirmado por HTTP. Recarregar a guia para atualizar a interface.
 
 ## Pendências confirmadas — ainda não corrigidas
 

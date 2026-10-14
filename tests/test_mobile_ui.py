@@ -54,7 +54,7 @@ class MobileUITest(unittest.TestCase):
                             for pane in ('files','chat','logs','workspace'):
                                 switch.locator(f'[data-mobile-pane={pane}]').click()
                                 self.assertLessEqual(page.evaluate('document.documentElement.scrollWidth'), width)
-                            for view in ('agents','logistics','models','settings','editor'):
+                            for view in ('agents','models','settings','editor'):
                                 page.locator(f'.nav[data-view={view}]').click()
                                 self.assertTrue(page.locator('#view-'+view).is_visible())
                                 self.assertLessEqual(page.evaluate('document.documentElement.scrollWidth'), width)

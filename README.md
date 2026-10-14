@@ -1,6 +1,6 @@
 # AI DEV STUDIO — MVP local para Windows
 
-Plataforma Flask com editor de código, oito agentes sequenciais, memória SQLite por projeto e gerenciamento real do Ollama. O aplicativo escuta somente em `127.0.0.1` e não depende de serviços de hospedagem.
+Plataforma Flask para criar diferentes tipos de sistemas, com editor de código, oito agentes sequenciais, memória SQLite por projeto e gerenciamento real do Ollama. O aplicativo escuta somente em `127.0.0.1` e não depende de serviços de hospedagem.
 
 ## Iniciar
 
@@ -11,15 +11,16 @@ Plataforma Flask com editor de código, oito agentes sequenciais, memória SQLit
 5. Use **Iniciar serviço** se o Ollama não responder. O Studio só reinicia processos do Ollama que ele próprio iniciou; uma instância aberta pelo Windows deve ser encerrada pelo ícone da bandeja.
 6. Baixe `qwen2.5-coder:3b` para código e, para o agente logístico, `qwen3.5:4b`. O analista usa o Qwen3.5 quando disponível e recorre ao modelo de código instalado quando necessário.
 7. Crie um projeto, converse com um agente ou marque **Acionar equipe completa**. Revise as propostas em **Alterações** e aprove os arquivos desejados.
-8. Para análise operacional, abra **Logística**, carregue CSV, XLSX, JSON ou TXT, revise o diagnóstico e o mapeamento, confirme a fórmula e gere o dashboard. Os arquivos aparecem como propostas para aprovação.
-9. Edite e salve os arquivos. Clique em **Executar**, confirme a execução e abra **Preview**. Use **Parar** ao terminar.
-10. Em **Ajustes**, prepare o ambiente virtual do projeto e execute seus testes. Na prévia, **Inspecionar / screenshot** executa o Playwright real.
+8. Edite e salve os arquivos. Clique em **Executar**, confirme a execução e abra **Preview**. Use **Parar** ao terminar.
+9. Em **Ajustes**, prepare o ambiente virtual do projeto e execute seus testes. Na prévia, **Inspecionar / screenshot** executa o Playwright real.
 
 O ambiente Python do próprio Studio foi preparado nesta entrega. Se iniciar.bat já funcionar, não é necessário reinstalar. O Playwright pode usar o Edge existente quando o Chromium gerenciado não estiver instalado.
 
 ## Interface móvel
 
-Em telas de até 850 px, o Studio apresenta os painéis **Arquivos**, **Área de trabalho**, **Assistente** e **Logs** separadamente. A barra inferior dá acesso a Editor, Agentes, Logística, IA e Ajustes. Mensagens e edições permanecem ao alternar painéis; use **Salvar** para gravar os arquivos. A adaptação é automática ao abrir a mesma página em uma tela menor.
+Em telas de até 850 px, o Studio apresenta os painéis **Arquivos**, **Área de trabalho**, **Assistente** e **Logs** separadamente. A barra inferior dá acesso a Editor, Agentes, IA e Ajustes. Mensagens e edições permanecem ao alternar painéis; use **Salvar** para gravar os arquivos. A adaptação é automática ao abrir a mesma página em uma tela menor.
+
+A navegação principal atende projetos de diferentes áreas. O antigo painel dedicado de Logística foi removido; o especialista continua disponível em Agentes e no assistente. Dados e APIs logísticas existentes são mantidos para compatibilidade, sem carregamento automático ao selecionar um projeto.
 
 ## Aprovação automática
 
@@ -45,7 +46,7 @@ O assistente exibe **atividade em tempo real** dentro do chat: agente ativo, mod
 - Modelos sugeridos Qwen2.5 Coder 1.5B/3B e Qwen3.5 4B; nome livre validado; seleção global e por agente. Confirmação antes de cada download.
 - Oito identidades com prompts próprios, incluindo o **Analista de Inteligência Logística**. Histórico separado por projeto/agente, geração de propostas de arquivos completos, tarefas ordenadas persistidas e uma fila de inferência global.
 - Equipe completa: coordenador → logística → banco → backend → frontend → testes → navegador → revisor → logística → coordenador. As etapas usam o contexto e as propostas anteriores; não aplicam arquivos sem revisão.
-- Módulo logístico local com upload seguro de CSV, XLSX, JSON e TXT, limite de 25 MB/100 mil linhas, perfil de tipos, ausências, duplicidades, mapeamento editável, catálogo de indicadores e memória aprovada por projeto.
+- Serviços logísticos locais, disponíveis por API, com upload de CSV, XLSX, JSON e TXT, limite de 25 MB/100 mil linhas, perfil de tipos, ausências, duplicidades, catálogo de indicadores e memória aprovada por projeto. O painel dedicado não faz parte da interface atual.
 - Geração determinística e rastreável de dashboard Flask de SLA com filtros por filial/regional/semana, KPIs, gráficos locais em SVG/CSS, detalhamento, exportação CSV e testes. A base original permanece imutável e os arquivos gerados são propostas com hash de versão.
 - Persistência logística em modelos SQLAlchemy sobre SQLite. O runtime força o modo Python puro do SQLAlchemy para compatibilidade com a política de controle de aplicativos deste Windows.
 - Editor Monaco 0.52.2, abas, arquivos em subpastas, criação/leitura/escrita/renomeação/exclusão, realce e diff das propostas. Editor de texto local quando o CDN não responde.
