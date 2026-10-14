@@ -1,0 +1,52 @@
+/* Mobile panels share the desktop state; switching never discards edits. */
+.mobile-switch{display:none}
+#studio-dialog{width:calc(100% - 32px);max-width:460px;max-height:80dvh;overflow:auto;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--text);padding:24px;box-shadow:0 20px 80px #0009}
+#studio-dialog::backdrop{background:#0009}
+#studio-dialog h2{font-size:17px;line-height:1.5;overflow-wrap:anywhere}
+#studio-dialog input{width:100%}
+#studio-dialog .button-row{justify-content:flex-end;margin-bottom:0}
+@media(max-width:850px){
+  body{height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direction:column}
+  header{height:58px;flex-shrink:0;padding:0 12px;gap:8px}
+  .brand{gap:7px}.brand strong{font-size:12px}.brand .pill,.top-actions>span{display:none}
+  .top-actions{gap:6px}.top-actions button{min-height:40px;font-size:11px;padding:8px}
+  #models-shortcut{display:none}
+  .mobile-switch{display:flex;flex-shrink:0;gap:4px;padding:7px 8px;background:var(--panel);border-bottom:1px solid var(--line)}
+  .mobile-switch button{flex:1;min-width:0;min-height:44px;padding:7px 3px;font-size:11px;background:transparent}
+  .mobile-switch button[aria-pressed=true]{background:#233b31;border-color:#4d856c;color:var(--accent)}
+  .shell{flex:1;height:auto;min-height:0;display:flex;flex-wrap:nowrap;padding-bottom:calc(65px + env(safe-area-inset-bottom))}
+  .shell>nav{position:fixed;bottom:0;left:0;width:100%;height:calc(65px + env(safe-area-inset-bottom));padding:5px 6px env(safe-area-inset-bottom);flex-direction:row;justify-content:space-around;border-top:1px solid var(--line);border-right:0;z-index:20;background:#14161b}
+  .nav{flex:1;width:auto;min-height:54px;margin:0;padding:4px;font-size:22px}.nav small{font-size:10px;margin-top:2px}.nav.active{border-left:0;border-radius:8px;border-top:2px solid var(--accent)}.nav-bottom{display:none}
+  .explorer,.chat-panel{display:none;width:100%;min-width:0;max-width:none;resize:none;border:0;height:100%;padding:16px;overflow:auto}
+  main{width:100%;min-width:0;height:100%;flex:1}
+  body[data-mobile-pane=files] .explorer{display:block}
+  body[data-mobile-pane=chat] .chat-panel{display:flex}
+  body[data-mobile-pane=files] main,body[data-mobile-pane=chat] main{display:none}
+  .hardware{position:static;margin-top:24px}.explorer .file-tools button{min-width:44px;min-height:44px}.files button{min-height:44px;font-size:13px}
+  .bottom-panel{display:none;resize:none}
+  body[data-mobile-pane=logs] main>.view{display:none}
+  body[data-mobile-pane=logs] .bottom-panel{display:block;flex:1;height:auto;max-height:none;min-height:0}
+  .bottom-tabs{flex-wrap:wrap;padding:8px}.bottom-tabs button{min-height:44px}.bottom-tabs #process-status{width:100%;order:2;margin:0;padding:0 7px;overflow-wrap:anywhere}
+  footer{display:none}
+  .view,.central-panel{min-width:0;overscroll-behavior:contain}
+  .padded{padding:18px 14px}h1{font-size:28px}.card{padding:16px;min-width:0;overflow-wrap:anywhere}
+  button,input,select{min-height:44px}input,select,textarea{font-size:16px;max-width:100%}input[type=checkbox]{min-height:0;width:20px;height:20px;flex-shrink:0}
+  button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .work-toolbar{flex-wrap:wrap;padding:8px;gap:8px}.work-toolbar>div{display:flex;gap:4px}.work-toolbar button{min-height:40px;font-size:11px;padding:7px}
+  .editor-tools{flex-wrap:wrap;padding:8px;gap:6px}.editor-tools>span{width:100%;overflow-wrap:anywhere}.editor-tools>div{width:100%}.editor-tools button{font-size:11px;flex:1;padding:6px}.tabs{flex-shrink:0}.tabs button{min-height:44px}
+  #editor{min-height:120px}#fallback-editor{min-height:120px;padding:12px;font-size:16px;overflow:auto;white-space:pre}
+  .welcome{min-height:280px;padding:18px}.welcome h1{font-size:26px}.welcome-note{display:none}
+  .chat-panel .section-title{margin-bottom:10px}.chat-agent select{font-size:16px;max-width:65%}.chat-agent small{overflow-wrap:anywhere}
+  #chat{min-height:80px}#prompt{height:88px;min-height:60px;max-height:25dvh;font-size:16px;resize:vertical}#chat-form{flex-shrink:0}.chat-mode-field{flex-wrap:wrap}.chat-mode-field select{font-size:16px}.check{font-size:12px;line-height:1.5}.chat-send button{font-size:13px}.message{font-size:14px}
+  .recommendations,.agent-grid,.logistics-layout,.mapping-editor{grid-template-columns:minmax(0,1fr)}
+  .button-row input{min-width:0;flex-basis:100%}.button-row button,.button-row a{font-size:12px}.button-row a{padding:10px 0}
+  .model-row strong{flex-basis:100%;overflow-wrap:anywhere}.model-row button{font-size:12px}
+  #agent-settings>label{align-items:stretch;flex-direction:column}#agent-settings select{max-width:100%;width:100%;font-size:16px}
+  .preview-tools span{width:100%;overflow-wrap:anywhere}.preview-tools button{font-size:12px}.preview-tools a{padding:10px 0}#preview{min-height:240px}
+  .proposal{padding:10px;min-width:0}.proposal strong{overflow-wrap:anywhere}.proposal button{font-size:12px}
+  .base-row,.dashboard-row,.memory-row{flex-wrap:wrap;overflow-wrap:anywhere}.base-row>div,.dashboard-row strong,.memory-row b{min-width:0;flex-basis:100%}
+  .logistics-card input,.logistics-card select,.logistics-card textarea{width:100%}.logistics-card input[type=checkbox]{width:20px}
+  .table-scroll{max-width:100%}.quality-summary{grid-template-columns:minmax(0,1fr)}
+  #toast{bottom:calc(80px + env(safe-area-inset-bottom));width:calc(100% - 24px);max-width:520px;padding:12px;font-size:13px}
+}
+@media(max-width:360px){.brand strong{font-size:10px}.brandmark{font-size:21px}.top-actions button{font-size:10px}.mobile-switch button{font-size:10px}.work-toolbar>div{flex-wrap:wrap}}

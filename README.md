@@ -17,6 +17,10 @@ Plataforma Flask com editor de código, oito agentes sequenciais, memória SQLit
 
 O ambiente Python do próprio Studio foi preparado nesta entrega. Se iniciar.bat já funcionar, não é necessário reinstalar. O Playwright pode usar o Edge existente quando o Chromium gerenciado não estiver instalado.
 
+## Interface móvel
+
+Em telas de até 850 px, o Studio apresenta os painéis **Arquivos**, **Área de trabalho**, **Assistente** e **Logs** separadamente. A barra inferior dá acesso a Editor, Agentes, Logística, IA e Ajustes. Mensagens e edições permanecem ao alternar painéis; use **Salvar** para gravar os arquivos. A adaptação é automática ao abrir a mesma página em uma tela menor.
+
 ## Implementado
 
 - Flask modular; SQLite com projetos, conversas, tarefas, eventos, configurações, propostas e resumo de contexto.

@@ -193,6 +193,7 @@ class Orchestrator:
                     emit('agent',{'agent':aid,'status':'CONCLUÍDO','files':list(staged)})
                 except Exception as exc:
                     self.store.execute("UPDATE tasks SET status='error',result=? WHERE id=?",(str(exc),tid))
+                    self.store.message(project,aid,'assistant','Falha no pedido: '+str(exc))
                     emit('agent',{'agent':aid,'status':'ERRO','error':str(exc)})
                     raise
             proposals = []

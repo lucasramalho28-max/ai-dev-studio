@@ -1,0 +1,125 @@
+# Memória do projeto — AI DEV STUDIO
+
+Última atualização: **14/10/2026**, fuso America/Cuiaba.
+
+## Finalidade e uso desta memória
+
+Este arquivo mantém a continuidade entre sessões que tenham acesso a este repositório. `AGENTS.md` orienta sua leitura e atualização. Não é memória global da conta nem garantia de contexto em conversas sem acesso aos arquivos.
+
+O usuário pediu revisão da coerência dos projetos feitos pela IA, código desnecessário e senhas não informadas. Depois pediu uma memória para acompanhar o que foi feito, o que foi concluído e o contexto do projeto. Até este momento, foi feita auditoria; as correções identificadas não foram implementadas.
+
+## Contexto e arquitetura
+
+- Workspace: `C:/Users/luas/Desktop/ia Lucas/ai_dev_studio`, Windows/PowerShell.
+- Produto: Studio Flask para criar e editar projetos, conversar com agentes locais via Ollama, revisar propostas de arquivos e executar aplicações/testes/inspeção de navegador.
+- Persistência: `data/studio.sqlite3`; projetos gerados em `workspace/<id>`; estado logístico adicional em `data/logistics` e tabelas SQLAlchemy no mesmo banco.
+- Entrada: `app.py`; configuração: `config.py`; instalação/início: `instalar.bat` e `iniciar.bat`. Porta padrão 5050.
+- Componentes: `agents/registry.py` (prompts), `core/orchestrator.py` (fluxos), `core/jobs.py` (fila), `core/context_manager.py` (evidências/contexto), `core/response_policy.py` (consultas/credenciais), `core/proposal_validation.py` (validação estática).
+- Serviços: arquivos, Ollama/instalador, execução Python, Playwright, logística e geração determinística de dashboards. Interface em `templates/` e `static/`.
+- Dependências declaradas: Flask, Playwright, openpyxl e SQLAlchemy. Inferência atual usa Ollama; não há integração implementada com APIs externas que exija chave.
+- Modelo padrão configurado: `qwen2.5-coder:3b`; logística prefere `qwen3.5:4b` quando disponível. Disponibilidade atual não foi revalidada nesta auditoria.
+- Propostas exigem aprovação antes de salvar. Validação estática e controle de hash não equivalem a execução nem garantem segurança. Aprovação é por arquivo, sem transação completa do conjunto.
+- `data/`, `workspace/`, `.venv/`, bancos e chaves estão ignorados pelo Git. Fazer backup do repositório sem essas pastas não preserva os projetos/dados locais.
+
+## Projeto gerado encontrado
+
+Na leitura do banco em 14/10/2026, existia **um projeto persistido**:
+
+- Nome: Atlas Estoque - Login e Logistica Ficticia.
+- ID: `b51ebbd762d8447892f5e5dc02363324`.
+- Pasta: `workspace/b51ebbd762d8447892f5e5dc02363324`.
+- Origem reconhecida: base local `starters/stock_portal`, com propostas aplicadas. Não confundir esse fluxo determinístico com geração livre do modelo.
+- Recursos: cadastro/login/logout, sessão, hash de senha, CSRF, estoque sintético, filtros, indicadores, paginação e CSV.
+- Dados confirmados: 72 produtos, 216 posições de estoque, 626 movimentos, três centros; referência sintética de 13/10/2026.
+- Banco: `instance/atlas.sqlite3`; chave persistente: `instance/session.key`. Não copiar seus valores para esta memória.
+- Acesso demo documentado no README e na tela de login do projeto. A correspondência da senha documentada com o hash da conta demo foi verificada. Existiam duas contas; a senha da outra conta não foi recuperada nem presumida.
+- Snapshot do Studio: 19 propostas (17 aplicadas, 2 rejeitadas), 24 jobs. Essas contagens são históricas e podem mudar.
+
+## Trabalho concluído e evidências
+
+### 14/10/2026 — auditoria
+
+- Inventariados código do Studio, base reutilizável e projeto Atlas; consultados README, configuração e testes.
+- Consultado o banco existente em modo somente leitura para identificar projeto, propostas, totais e validar acesso demo, sem exibir hashes ou chaves.
+- Executado `./.venv/Scripts/python.exe -m unittest discover -s tests -v` na raiz: **65 testes passaram**, incluindo navegador real e execução de Flask.
+- Executada descoberta unittest na pasta do Atlas com o Python da `.venv` do Studio: **6 testes passaram**, incluindo autenticação, CSRF, reconciliação, filtros e exportação.
+- Reproduzidos em ambiente temporário: Host privado aceito em leitura sem autenticação; perda de valor CSV com cabeçalho espaçado; exceção secundária que oculta erro da base pronta.
+- Criado `REVISAO_PROJETOS.md`, com evidências, impactos, limites e recomendações.
+- Não foram corrigidos códigos, alteradas contas nem aplicadas propostas existentes. Testes podem produzir artefatos de QA e inicializar arquivos de runtime; não confundir com correção do produto.
+
+### 14/10/2026 — continuidade
+
+- Criados `AGENTS.md` e este arquivo por pedido do usuário.
+- Verificada a existência e o conteúdo dos documentos de memória. Não há necessidade de reexecutar testes da aplicação por essa alteração apenas documental.
+
+### 14/10/2026 — interface móvel do Studio
+
+- Pedido do usuário: criar versão do front para dispositivos móveis. Escopo adotado: interface principal do Studio, preservando o projeto Atlas.
+- Adicionados `static/mobile.css`, seletor de painéis no template e função `mobilePane` em `static/app.js`. Até 850 px, Arquivos, Área de trabalho, Assistente e Logs ocupam a tela individualmente; módulos ficam na barra inferior.
+- Controles maiores para toque, formulários com fonte de 16 px, layouts de coluna única, suporte a altura dinâmica da tela e área segura inferior. Trocar painéis preserva mensagens e edições não salvas.
+- Teste real `tests/test_mobile_ui.py` passou: criação/seleção, edição/salvamento, preservação de conteúdo, navegação em todos os módulos e ausência de transbordamento da página em 320×568, 390×844 e 844×390; verifica também retorno ao layout desktop em 1600×1000. Assets externos bloqueados nesse teste para verificar fallback local.
+- Capturas inspecionadas em `data/qa/studio-mobile-editor.png` e `data/qa/studio-mobile-chat.png`.
+- Teste desktop existente `tests.test_browser_real` também passou após a alteração: criação, edição, execução, inspeção real e fluxo logístico. `git diff --check` sem erros de whitespace.
+- Não houve alteração da rede/autenticação nem correção dos achados da auditoria. Testes usam projetos temporários. Emulação de navegador não substitui teste em aparelho físico.
+
+### 14/10/2026 — envio do prompt pelo teclado
+
+- Enter envia o formulário do chat; Shift+Enter mantém quebra de linha. Composição IME e repetição de tecla não disparam envio.
+- Adicionado bloqueio durante a requisição inicial para evitar envios duplicados; botão volta a habilitar em caso de falha, respeitando job ativo.
+- Dica de teclado incluída no formulário. Verificação pontual em navegador real confirmou evento de envio, quebra de linha, botão desabilitado e composição IME; envio interceptado no teste, sem chamar modelo. `git diff --check` passou.
+
+### 14/10/2026 — seção ativa do Atlas e retorno do chat
+
+- Usuário relatou envio sem resposta ao pedir correção do menu esquerdo. Leitura dos jobs confirmou primeira tentativa com erro de limite de geração; segunda concluída como consulta, sem propostas. A explicação do modelo sobre sessão/login não correspondia à causa encontrada no menu.
+- Atlas tinha `selected` fixo em Visão geral. Adicionados atributos de seção, âncora de visão geral e atualização de destaque/`aria-current` por clique, hash, rolagem e redimensionamento, tanto no projeto aplicado quanto na base `starters/stock_portal`.
+- Studio agora mostra status do pedido no assistente e falhas como mensagem na conversa. Falhas de inferência/validação do fluxo geral são gravadas no histórico pelo orquestrador. A interface lembra o agente do último envio ao recarregar, preservando acesso ao histórico correto.
+- Teste real do Atlas em cópia temporária confirmou navegação, rolagem e link direto. Os 13 testes de qualidade de resposta passaram. Teste móvel ampliado confirmou envio real do formulário por Enter, consulta local respondida e erro de geração simulado visível e preservado após recarregar; passou junto dos 4 testes da base de estoque.
+- Backend exige reinício do Studio para carregar a mudança Python. Não houve nova inferência para refazer automaticamente o pedido antigo, nem alteração de contas ou dados de estoque.
+
+### 14/10/2026 — teste visível dentro do VS Code
+
+- Usuário pediu teste em tempo real e depois abertura no VS Code. Controle do Chrome foi interrompido automaticamente por não confirmar a URL; o teste seguinte foi realizado na guia de navegador integrado do VS Code com a habilidade Computer Use.
+- Servidor original na porta 5050 estava indisponível. Iniciada instância isolada em `127.0.0.1:5050`, usando `data/qa/live-vscode/data` e `data/qa/live-vscode/workspace`. Não confundir com o banco principal `data/studio.sqlite3`.
+- Descoberto em uso real: o navegador integrado não suporta `prompt()`. Substituídos `prompt` e `confirm` do Studio por diálogos HTML acessíveis, incluindo criar/renomear arquivos, criação de projeto, execução e aprovações. Confirmações continuam obrigatórias; Cancelar/Escape não executam a ação.
+- Pela interface visível: criado projeto `QA VS Code - teste real`; enviado com Enter o pedido sobre a rota principal de `app.py`; inferência real do Ollama retornou `A rota principal é /`, com referência `app.py:4`. Navegação Agentes → Editor exibiu o destaque correto. Executado projeto e conferido preview com `Seu projeto está no ar.`; parada solicitada após a validação.
+- Testes automatizados de navegador desktop e móvel atualizados para os diálogos HTML: **2 testes passaram**, incluindo edição, execução, preview, logística, Enter, mensagem de erro e recuperação do histórico. A resposta Ollama da sessão visível foi real, sem mock.
+- Guia do VS Code deixada aberta para acompanhamento. Essa rodada visível validou o Studio de teste; não repetiu login nem navegação do Atlas nessa guia. A validação anterior do Atlas permanece registrada acima.
+
+### 14/10/2026 — preparação para publicação no GitHub
+
+- Usuário pediu envio ao Git e autorizou criar um repositório novo. Nome adotado: `ai-dev-studio`, privado por padrão, na conta conectada `Lucask22000`.
+- Git local já existia em `main`, sem remoto; commit inicial `6bead43`. Revisadas alterações da sessão para novo commit, incluindo memória, relatório, interface móvel, chat, diálogos e menu da base de estoque.
+- Suíte completa antes do envio: **66 testes passaram**; resultado em `data/qa/git-upload-tests.txt`. Varredura básica de tokens/chaves nos 61 arquivos candidatos não encontrou correspondências; pastas de runtime não estão entre os candidatos.
+- `data/`, `workspace/`, `.venv/`, bancos e chaves permanecem excluídos. O Atlas aplicado localmente não será enviado como banco/projeto completo; a base reutilizável e suas correções estão versionadas.
+- A criação/publicação remota ainda depende da autenticação do GitHub CLI: o conector disponível identifica a conta, mas não oferece criação de repositório; não foi encontrada credencial Git em cache. Atualizar esta entrada quando o envio for confirmado.
+
+## Pendências confirmadas — ainda não corrigidas
+
+Detalhes completos e referências estão em `REVISAO_PROJETOS.md`.
+
+| Prioridade | Pendência | Local principal |
+|---|---|---|
+| Alta | Studio e subprocessos usam `0.0.0.0`, contrariando promessa de acesso local; Host privado é aceito e token CSRF não autentica usuário | `app.py`, `services/execution_service.py` |
+| Alta | Gerador de SLA pode substituir `app.py` de projeto existente e remover autenticação/rotas/dependências | `services/dashboard_service.py` |
+| Média | Normalização de cabeçalhos CSV/JSON e truncamento de nomes não preservam associação com valores | `services/logistics_service.py` |
+| Média | Tratamento de falhas da base pronta usa `reply` e `aid` antes de definição | `core/orchestrator.py` |
+| Média | Senha personalizada reconhecida no pedido pode ser publicada como credencial demo no código, README e login | `services/starter_service.py`, base de estoque |
+| Média | Gerador determinístico marca etapas especializadas como concluídas sem executar essas análises/testes | `services/dashboard_service.py` |
+| Média | Exportação logística não neutraliza fórmulas de planilha em textos importados | `DASHBOARD_JS` no gerador |
+| Baixa | Template inicial sem uso no Atlas; duplicação `SAMPLE`/`EMPTY_APP`; carregamento desnecessário de movimentos; título de dashboard ignorado na tela; import de testes pode inicializar runtime real | Ver relatório |
+
+Não remover arquivos/dados por suposta inutilidade sem conferir referências e necessidade do usuário. A senha demo pública é intencional no exemplo atual; não classificá-la como segredo omitido. Não há evidência de que todos os projetos futuros estejam corretos só porque as suítes atuais passaram.
+
+## Próxima retomada
+
+1. Ler esta memória e o relatório; conferir `git status` e alterações recentes.
+2. Preservar projetos/dados locais. Não recriar o banco para resolver um problema de código.
+3. Se houver pedido de correção, começar pela exposição de rede e preservação da autenticação, depois corrigir falhas reproduzidas e adicionar verificações específicas proporcionais às mudanças.
+4. Atualizar os estados acima apenas conforme mudanças e validações reais; registrar limitações e novas decisões.
+
+## Referências locais
+
+- `README.md`: instalação, arquitetura e limitações documentadas; há divergência conhecida sobre bind local.
+- `REVISAO_PROJETOS.md`: relatório desta auditoria.
+- `VALIDACAO.md`, `VALIDACAO_LOGISTICA.md`, `data/qa/`: evidências históricas de entregas anteriores. Não assumir que foram todas reexecutadas nesta sessão.
+- README do Atlas e `starters/stock_portal/README.md`: funcionamento da base e acesso demo.

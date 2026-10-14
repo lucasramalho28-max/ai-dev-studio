@@ -38,6 +38,8 @@ class BrowserRealTest(unittest.TestCase):
                         page.on('dialog',lambda d:d.accept('QA Flask' if d.type=='prompt' else None))
                         page.goto(f'http://127.0.0.1:{server.server_port}',wait_until='networkidle')
                         page.locator('#new-project').click()
+                        page.locator('#studio-dialog-input').fill('QA Flask')
+                        page.locator('#studio-dialog button[type=submit]').click()
                         page.wait_for_function("document.querySelector('#file-label').textContent==='app.py'")
                         self.assertEqual(len(studio['store'].rows('SELECT * FROM projects')),1)
                         pid=studio['store'].rows('SELECT * FROM projects')[0]['id']
@@ -64,11 +66,13 @@ class BrowserRealTest(unittest.TestCase):
                         self.assertIn('Editado no QA',studio['files'].read(pid,'app.py')['content'])
                         page.screenshot(path=str(artifacts/'editor.png'),full_page=True)
                         page.locator('#run-project').click()
+                        page.locator('#studio-dialog button[type=submit]').click()
                         page.wait_for_function("document.querySelector('#process-status').textContent.includes('Em execução')",timeout=20000)
                         self.assertTrue(studio['execution'].status(pid)['ready'])
                         page.frame_locator('#preview').get_by_role('heading',name='Seu projeto está no ar.').wait_for()
                         page.screenshot(path=str(artifacts/'preview.png'),full_page=True)
                         page.locator('#browser-check').click()
+                        page.locator('#studio-dialog button[type=submit]').click()
                         page.locator('#screenshot').wait_for(state='visible',timeout=30000)
                         jobs=studio['store'].rows("SELECT * FROM jobs WHERE kind='browser'")
                         for job in jobs:
