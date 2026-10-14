@@ -1,0 +1,7 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>{% block title %}Atlas Estoque{% endblock %}</title><link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}"></head>
+<body class="{% block body_class %}{% endblock %}">
+{% block content %}{% endblock %}
+<script src="{{ url_for('static',filename='app.js') }}" defer></script>
+</body></html>

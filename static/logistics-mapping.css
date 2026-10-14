@@ -1,0 +1,1 @@
+.mapping-editor{display:grid;grid-template-columns:repeat(2,minmax(150px,1fr));gap:9px;margin:10px 0 16px}.mapping-editor label{font-size:10px;color:#5d6d87;font-weight:700}.mapping-editor select{margin-top:5px;width:100%}@media(max-width:640px){.mapping-editor{grid-template-columns:1fr}}

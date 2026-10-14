@@ -1,0 +1,15 @@
+.venv/
+data/
+workspace/
+__pycache__/
+*.pyc
+.env
+
+# Estado local e credenciais de aplicativos
+instance/
+*.sqlite3
+*.sqlite3-*
+*.db
+*.key
+.env.*
+!.env.example
