@@ -106,7 +106,8 @@ Na leitura do banco em 14/10/2026, existia **um projeto persistido**:
 
 - Login concluído pelo usuário no GitHub CLI em **lucasramalho28-max**, conta diferente da conexão anterior Lucask22000. Usada a conta efetivamente autenticada para a criação autorizada.
 - Criado repositório privado `https://github.com/lucasramalho28-max/ai-dev-studio`; configurado `origin` para esse destino. Commit anterior da sessão: `69286e9`.
-- Envio das alterações atuais em preparação; atualizar quando `git push` e comparação do commit remoto confirmarem a publicação. Não guardar códigos de login nem tokens na memória.
+- Publicação concluída: `git push -u origin main` enviou o histórico e o commit de implementação `592220c`. Remoto privado: `https://github.com/lucasramalho28-max/ai-dev-studio`. Autenticação Git configurada via GitHub CLI, sem valores de credenciais nos arquivos.
+- Instância QA de `data/qa/live-vscode` reiniciada após confirmar identidade do processo e ausência de tarefas ativas, para carregar os novos eventos do orquestrador. Recarregar a guia do VS Code para carregar o front atualizado.
 
 ## Pendências confirmadas — ainda não corrigidas
 
