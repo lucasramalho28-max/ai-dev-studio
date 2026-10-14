@@ -50,7 +50,7 @@ class BrowserRealTest(unittest.TestCase):
                         page.locator('#prompt').fill('Qual login e senha?')
                         page.locator('#send').click()
                         page.get_by_text('Não consigo confirmar um login e uma senha ativos', exact=False).wait_for()
-                        page.wait_for_function("!document.querySelector('#send').disabled")
+                        page.wait_for_function("document.querySelector('#send').dataset.mode==='send'")
                         chat_job=studio['store'].rows("SELECT * FROM jobs WHERE kind='chat'")[0]
                         self.assertEqual(chat_job['status'],'completed')
                         self.assertEqual(len(studio['store'].rows('SELECT * FROM tasks WHERE job=?',(chat_job['id'],))),1)

@@ -118,6 +118,13 @@ Na leitura do banco em 14/10/2026, existia **um projeto persistido**:
 - Eventos de arquivos registram `automatic:true` quando a aplicação veio desse fluxo. Criação/execução de processos permanece separada.
 - Testes de navegador, atividade móvel e serviços: **37 testes direcionados passaram**. Verificação adicional do novo fluxo confirmou aplicação somente após opt-in, preservação de propostas antigas, pausa por buffer não salvo e por alteração de disco durante a inferência. Evidências em `data/qa/auto-approval-tests.txt` e `data/qa/auto-approval-protection-tests.txt`.
 
+### 14/10/2026 — botão único Enviar / Interromper
+
+- Botão principal do chat alterna entre Enviar, Enviando…, Interromper e Interrompendo…. Botão separado de interrupção removido. Durante execução, usa `type=button` para cancelar mesmo com textarea vazio; ao terminar, volta a `type=submit`.
+- Clique durante execução chama o endpoint real de cancelamento; pedidos repetidos de cancelamento ficam bloqueados enquanto o agente encerra. Falha de cancelamento permite nova tentativa. Enter continua enviando apenas quando o chat está livre, sem cancelar acidentalmente uma execução.
+- Estado recuperado ao recarregar tarefas ativas e ao reexecutar conversa interrompida. Conclusão, erro e cancelamento restauram Enviar.
+- **4 testes de navegador passaram**, cobrindo atividade, cancelamento real com modelo controlado, retorno ao envio, recuperação, autoaprovação, mobile e fluxo desktop. Evidências em `data/qa/send-interrupt-tests.txt`; captura móvel inspecionada em `data/qa/chat-live-activity.png`.
+
 ## Pendências confirmadas — ainda não corrigidas
 
 Detalhes completos e referências estão em `REVISAO_PROJETOS.md`.

@@ -20,7 +20,7 @@ class ActivityUITest(unittest.TestCase):
             server = make_server('127.0.0.1',0,app,threaded=True)
             thread = threading.Thread(target=server.serve_forever,daemon=True)
             thread.start()
-            first, second = threading.Event(), threading.Event()
+            first, second, third = threading.Event(), threading.Event(), threading.Event()
             calls = []
 
             def model(*args, **kwargs):
@@ -29,6 +29,8 @@ class ActivityUITest(unittest.TestCase):
                     first.wait(timeout=20)
                 elif len(calls) == 2:
                     second.wait(timeout=20)
+                elif len(calls) == 11:
+                    third.wait(timeout=20)
                 yield {'message':{'content':json.dumps({'summary':'Análise da etapa.','files':[],'edits':[]})},'done':True}
 
             try:
@@ -50,6 +52,9 @@ class ActivityUITest(unittest.TestCase):
                         page.locator('.execution-tasks li[data-status=running]').filter(has_text='Coordenador').wait_for()
                         self.assertEqual(page.locator('.execution-tasks li').count(),10)
                         self.assertEqual(page.locator('.execution-tasks li[data-status=queued]').count(),9)
+                        self.assertIn('Interromper',page.locator('#send').inner_text())
+                        self.assertTrue(page.locator('#send').is_enabled())
+                        self.assertEqual(page.locator('#send').get_attribute('type'),'button')
                         self.assertIn('aguardando resposta',page.locator('.execution-current').inner_text())
                         first.set()
                         page.locator('.execution-tasks li[data-status=running]').filter(has_text='Logística').wait_for()
@@ -59,6 +64,7 @@ class ActivityUITest(unittest.TestCase):
                         page.locator('.mobile-switch [data-mobile-pane=chat]').click()
                         page.locator('.execution-tasks li[data-status=running]').filter(has_text='Logística').wait_for()
                         self.assertEqual(page.locator('.execution-tasks li').count(),10)
+                        self.assertIn('Interromper',page.locator('#send').inner_text())
                         artifacts = Path(__file__).resolve().parents[1]/'data'/'qa'
                         artifacts.mkdir(parents=True,exist_ok=True)
                         page.screenshot(path=str(artifacts/'chat-live-activity.png'))
@@ -70,8 +76,24 @@ class ActivityUITest(unittest.TestCase):
                         self.assertEqual(page.locator('.execution-tasks li[data-status=running]').count(),0)
                         self.assertEqual(page.locator('.execution-tasks li[data-status=completed]').count(),10)
                         self.assertEqual(len(calls),10)
+                        page.wait_for_function("document.querySelector('#send').dataset.mode==='send'")
+                        self.assertEqual(page.locator('#send').get_attribute('type'),'submit')
+                        page.locator('#orchestrate').uncheck()
+                        page.locator('#prompt').fill('Planeje outra melhoria')
+                        page.locator('#prompt').press('Enter')
+                        page.locator('.execution-card[data-status=running] li[data-status=running]').wait_for()
+                        self.assertEqual(page.locator('#prompt').input_value(),'')
+                        page.locator('#send').click()
+                        page.wait_for_function("document.querySelector('#chat-status').textContent.includes('Interrupção solicitada')")
+                        self.assertEqual(page.locator('#send').inner_text(),'Interrompendo…')
+                        self.assertTrue(page.locator('#send').is_disabled())
+                        third.set()
+                        page.locator('.execution-card[data-status=cancelled]').wait_for()
+                        page.wait_for_function("document.querySelector('#send').dataset.mode==='send'")
+                        self.assertTrue(page.locator('#send').is_enabled())
+                        self.assertEqual(len(studio['store'].rows("SELECT id FROM jobs WHERE kind='chat'")),2)
                     finally: browser.close()
             finally:
-                first.set(); second.set()
+                first.set(); second.set(); third.set()
                 for worker in list(studio['jobs'].threads.values()): worker.join(timeout=10)
                 server.shutdown();server.server_close();thread.join(timeout=5)

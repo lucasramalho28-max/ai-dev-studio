@@ -23,6 +23,8 @@ Em telas de até 850 px, o Studio apresenta os painéis **Arquivos**, **Área de
 
 ## Aprovação automática
 
+O botão do chat muda de **Enviar** para **Interromper** enquanto o pedido está em execução. Após solicitar o cancelamento, mostra **Interrompendo…** até o encerramento e então volta a **Enviar**. Enter envia quando o chat está livre; Shift+Enter insere uma linha.
+
 No assistente, marque **Autoaprovar arquivos dos novos pedidos** antes de enviar. A opção começa desativada e salva as propostas validadas desses pedidos enquanto a guia estiver aberta. Propostas antigas continuam disponíveis em **Alterações** para revisão manual. Edições não salvas ou conflitos de versão pausam a aplicação; o chat informa o resultado. Desmarcar cancela as autoaprovações pendentes desse projeto. Autorizações de pedidos em andamento são recuperadas ao recarregar a mesma guia.
 
 A opção aprova arquivos. Execução de código, testes, instalações e downloads continuam usando suas confirmações próprias.

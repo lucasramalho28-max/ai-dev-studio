@@ -1,5 +1,7 @@
 /* Mobile panels share the desktop state; switching never discards edits. */
 .mobile-switch{display:none}
+.chat-send{justify-content:flex-end}
+#send[data-mode=stop]{background:#f0b8a9;color:#3b1d16;border-color:#f0b8a9}
 #studio-dialog{width:calc(100% - 32px);max-width:460px;max-height:80dvh;overflow:auto;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--text);padding:24px;box-shadow:0 20px 80px #0009}
 #studio-dialog::backdrop{background:#0009}
 #studio-dialog h2{font-size:17px;line-height:1.5;overflow-wrap:anywhere}
