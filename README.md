@@ -21,6 +21,12 @@ O ambiente Python do próprio Studio foi preparado nesta entrega. Se iniciar.bat
 
 Em telas de até 850 px, o Studio apresenta os painéis **Arquivos**, **Área de trabalho**, **Assistente** e **Logs** separadamente. A barra inferior dá acesso a Editor, Agentes, Logística, IA e Ajustes. Mensagens e edições permanecem ao alternar painéis; use **Salvar** para gravar os arquivos. A adaptação é automática ao abrir a mesma página em uma tela menor.
 
+## Aprovação automática
+
+No assistente, marque **Autoaprovar arquivos dos novos pedidos** antes de enviar. A opção começa desativada e salva as propostas validadas desses pedidos enquanto a guia estiver aberta. Propostas antigas continuam disponíveis em **Alterações** para revisão manual. Edições não salvas ou conflitos de versão pausam a aplicação; o chat informa o resultado. Desmarcar cancela as autoaprovações pendentes desse projeto. Autorizações de pedidos em andamento são recuperadas ao recarregar a mesma guia.
+
+A opção aprova arquivos. Execução de código, testes, instalações e downloads continuam usando suas confirmações próprias.
+
 ## Implementado
 
 O assistente exibe **atividade em tempo real** dentro do chat: agente ativo, modelo, etapa atual, fila de etapas, conclusões e falhas. O painel usa eventos persistidos do servidor e recupera execuções ainda ativas ao recarregar. A equipe trabalha em sequência; consultas e bases prontas podem usar apenas um agente. A geração logística determinística aparece como gerador local, sem indicar inferência ou testes executados.

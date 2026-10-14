@@ -18,7 +18,7 @@ O usuário pediu revisão da coerência dos projetos feitos pela IA, código des
 - Serviços: arquivos, Ollama/instalador, execução Python, Playwright, logística e geração determinística de dashboards. Interface em `templates/` e `static/`.
 - Dependências declaradas: Flask, Playwright, openpyxl e SQLAlchemy. Inferência atual usa Ollama; não há integração implementada com APIs externas que exija chave.
 - Modelo padrão configurado: `qwen2.5-coder:3b`; logística prefere `qwen3.5:4b` quando disponível. Disponibilidade atual não foi revalidada nesta auditoria.
-- Propostas exigem aprovação antes de salvar. Validação estática e controle de hash não equivalem a execução nem garantem segurança. Aprovação é por arquivo, sem transação completa do conjunto.
+- Propostas usam aprovação manual ou a opção explícita de autoaprovação de novos pedidos no assistente (desativada por padrão). Validação estática e controle de hash não equivalem a execução nem garantem segurança. Aprovação é por arquivo, sem transação completa do conjunto.
 - `data/`, `workspace/`, `.venv/`, bancos e chaves estão ignorados pelo Git. Fazer backup do repositório sem essas pastas não preserva os projetos/dados locais.
 
 ## Projeto gerado encontrado
@@ -108,6 +108,15 @@ Na leitura do banco em 14/10/2026, existia **um projeto persistido**:
 - Criado repositório privado `https://github.com/lucasramalho28-max/ai-dev-studio`; configurado `origin` para esse destino. Commit anterior da sessão: `69286e9`.
 - Publicação concluída: `git push -u origin main` enviou o histórico e o commit de implementação `592220c`. Remoto privado: `https://github.com/lucasramalho28-max/ai-dev-studio`. Autenticação Git configurada via GitHub CLI, sem valores de credenciais nos arquivos.
 - Instância QA de `data/qa/live-vscode` reiniciada após confirmar identidade do processo e ausência de tarefas ativas, para carregar os novos eventos do orquestrador. Recarregar a guia do VS Code para carregar o front atualizado.
+
+### 14/10/2026 — opção de autoaprovação
+
+- Pedido do usuário: adicionar opção de autoaprovações. Escopo implementado: salvar propostas de arquivos dos novos pedidos enviados com a caixa **Autoaprovar arquivos dos novos pedidos** marcada. Opção desativada por padrão; não altera confirmações de execução, instalações ou downloads.
+- Módulo `static/auto-approval.js` mantém autorizações por job/projeto na sessão da guia. Propostas antigas não são autorizadas ao marcar a opção. Desmarcar revoga autorizações pendentes do projeto; não dispara ações que estavam bloqueadas.
+- Aplicação exige guia aberta no projeto correspondente. Autorizações de pedidos em andamento sobrevivem ao recarregamento da mesma guia; sem guia aberta as propostas ficam pendentes. A opção é restaurada se houver autorização pendente desse projeto.
+- Preflight de todos os arquivos do grupo verifica hashes de disco e buffers abertos; cada salvamento usa a validação estática e o hash já exigidos pelo endpoint. Buffer digitado durante uma requisição é preservado. Conflitos, edições não salvas e falhas pausam a aplicação e aparecem no chat; restantes aguardam revisão manual. Arquivos já salvos antes de uma falha não são revertidos automaticamente.
+- Eventos de arquivos registram `automatic:true` quando a aplicação veio desse fluxo. Criação/execução de processos permanece separada.
+- Testes de navegador, atividade móvel e serviços: **37 testes direcionados passaram**. Verificação adicional do novo fluxo confirmou aplicação somente após opt-in, preservação de propostas antigas, pausa por buffer não salvo e por alteração de disco durante a inferência. Evidências em `data/qa/auto-approval-tests.txt` e `data/qa/auto-approval-protection-tests.txt`.
 
 ## Pendências confirmadas — ainda não corrigidas
 

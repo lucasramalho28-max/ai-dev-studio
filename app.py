@@ -285,7 +285,8 @@ def create_app(data=None, workspace=None, testing=False):
             validate_proposals({item['path']:item['content'] for item in siblings},files,p['project'])
             files.write(p['project'],p['path'],p['content'],p['base'])
             store.execute("UPDATE proposals SET status='applied' WHERE id=?",(proposal_id,))
-            store.event(p['job'],'file',{'project':p['project'],'path':p['path'],'action':'proposal_applied'})
+            store.event(p['job'],'file',{'project':p['project'],'path':p['path'],'action':'proposal_applied',
+                                       'automatic':b.get('automatic') is True})
         return jsonify(ok=True)
 
     @app.get('/api/jobs/<jid>/events')
